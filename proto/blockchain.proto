@@ -1,0 +1,57 @@
+syntax = "proto3";
+package blockchain;
+
+option go_package = "github.com/greg/hashchain/proto";
+
+// Block represents a single block in the blockchain
+message Block {
+    int64 version = 1;
+    bytes prev_block_hash = 2;
+    bytes merkle_root = 3;
+    int64 timestamp = 4;
+    int32 bits = 5;
+    int64 nonce = 6;
+    repeated Transaction transactions = 7;
+}
+
+// Transaction represents a single transaction
+message Transaction {
+    bytes txid = 1;
+    int32 version = 2;
+    repeated Input inputs = 3;
+    repeated Output outputs = 4;
+    int64 locktime = 5;
+}
+
+// Input represents a transaction input
+message Input {
+    bytes prev_txid = 1;
+    uint32 prev_out_index = 2;
+    bytes script_sig = 3;
+    uint32 sequence = 4;
+}
+
+// Output represents a transaction output
+message Output {
+    int64 value = 1;
+    bytes script_pubkey = 2;
+}
+
+// Node service definition
+service NodeService {
+    rpc BroadcastBlock(Block) returns (BroadcastResponse) {}
+    rpc BroadcastTransaction(Transaction) returns (BroadcastResponse) {}
+    rpc GetBlock(GetBlockRequest) returns (Block) {}
+    rpc GetLatestBlock(Empty) returns (Block) {}
+}
+
+message GetBlockRequest {
+    bytes block_hash = 1;
+}
+
+message Empty {}
+
+message BroadcastResponse {
+    bool success = 1;
+    string message = 2;
+}
